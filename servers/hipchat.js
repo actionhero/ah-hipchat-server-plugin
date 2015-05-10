@@ -75,14 +75,6 @@ var initialize = function(api, options, next){
     // Nothin'
   };
 
-  ////////////
-  // EVENTS //
-  ////////////
-
-  server.on('connection', handleConnection);
-
-  server.on('actionComplete', prepareResponse);
-
   /////////////
   // HELPERS //
   /////////////
@@ -162,6 +154,14 @@ var initialize = function(api, options, next){
 
     data.connection.sendMessage(msg);
   };
+
+  ////////////
+  // EVENTS //
+  ////////////
+
+  server.on('connection', handleConnection);
+
+  server.on('actionComplete', prepareResponse);
 
   next(server);
 };
