@@ -1,12 +1,12 @@
 {
   "author": "Evan Tahler <evantahler@gmail.com>",
-  "name": "ah-hipchat-plugin",
+  "name": "ah-hipchat-server-plugin",
   "description": "I connect actionhero to HipChat",
   "version": "0.0.1",
   "homepage": "http://actionherojs.com",
   "repository": {
     "type": "git",
-    "url": "git://github.com/evantahler/ah-hipchat-plugin.git"
+    "url": "git://github.com/evantahler/ah-hipchat-server-plugin.git"
   },
   "keywords": [
     "actionhero",

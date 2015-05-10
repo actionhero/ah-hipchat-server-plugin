@@ -1,4 +1,4 @@
-# ah-hipchat-plugin
+# ah-hipchat-server-plugin
 
 This plugin adds a "hipchat" server, allowing you to communicate with actionhero from your hipchat chat client! 
 
