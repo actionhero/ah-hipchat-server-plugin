@@ -32,7 +32,7 @@ In order to tell which messages in rooms are meant to be actions, we need to set
 
 - You can send key-value pairs as well.  You can set the `breaker` for key-value pairs (which defaults to '=') in the config. So a stanza like `/ping thing=stuff` would produce:
 
-```
+```javascript
 {
   action: 'ping',
   room:   '12345_the_room',
@@ -40,6 +40,7 @@ In order to tell which messages in rooms are meant to be actions, we need to set
   words:  ['thing=stuff']
   thing:  'stuff',
 }
+```
 
 An example action, `ping`, is provided to test this out.
 
@@ -49,7 +50,7 @@ You can be sure that any actions coming in via the hipchat server are from users
 
 One simple thing to do is add an authentication middleware (which your actions can opt into) which checks for the method of connection:
 
-```
+```javascript
 // From initializaers/auth.js
 
 module.exports = {
