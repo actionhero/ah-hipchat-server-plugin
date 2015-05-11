@@ -77,7 +77,5 @@ module.exports = {
 
 ## TODO:
 
-- load the of rooms to join dynamicallt
 - figure out how to get "online" presence right within hipchat
-- reconnecting & server rebooting
 - work in private chats

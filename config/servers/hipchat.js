@@ -5,9 +5,9 @@ exports.default = {
         enabled:   true,
         delimiter: '/',
         breaker:   '=',
-        jid:       process.env.HIPCHAT_JID,
-        password:  process.env.HIPCHAT_PASSWORD,
-        nickname:  process.env.HIPCHAT_NICKNAME,
+        jid:       'xxx' || process.env.HIPCHAT_JID,
+        password:  'xxx' || process.env.HIPCHAT_PASSWORD,
+        nickname:  'xxx' || process.env.HIPCHAT_NICKNAME,
       };
     }
   }

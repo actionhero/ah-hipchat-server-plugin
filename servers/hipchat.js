@@ -1,4 +1,5 @@
 var xmpp = require('node-xmpp');
+var uuid = require('node-uuid');
 
 var initialize = function(api, options, next){
 
@@ -21,11 +22,15 @@ var initialize = function(api, options, next){
   var delimiter = api.config.servers.hipchat.delimiter;
   var breaker   = api.config.servers.hipchat.breaker;
 
+  var callbacks = {};
+
   //////////////////////
   // REQUIRED METHODS //
   //////////////////////
 
   server.start = function(next){
+
+    server.rooms = [];
 
     server.xmpp = new xmpp.Client({
       jid: api.config.servers.hipchat.jid + '/bot',
@@ -35,33 +40,36 @@ var initialize = function(api, options, next){
     server.xmpp.on('online', function(){
       clearTimeout(server.serverPresenseTimer);
 
-      api.log("hipchat connected");
-     
-      server.xmpp.send(
-        // TODO: "away" works, but "chat" for presence does not?
-        new xmpp.Element('presence', { type: 'available' }).c('show').t('chat').c('status').t('Available')
-      );
-     
-      api.config.servers.hipchat.rooms.forEach(function(r){
-        server.xmpp.send(
-          new xmpp.Element('presence', { to: r + '@conf.hipchat.com' + '/' + api.config.servers.hipchat.nickname })
-          .c('x', { xmlns: 'http://jabber.org/protocol/muc' })
-        );
-      });
-     
       // send keepalive data or server will disconnect us after 150s of inactivity
       server.serverPresenseTimer = setInterval(function(){
         server.xmpp.send(' ');
       }, 10000);
 
-      next();
+      getRooms(function(error, rooms){
+        server.rooms = rooms;
+
+        server.xmpp.send(
+          // TODO: "away" works, but "chat" for presence does not?
+          new xmpp.Element('presence', { type: 'available' }).c('show').t('chat').c('status').t('Available')
+        );
+
+        server.rooms.forEach(function(r){
+          server.xmpp.send(
+            new xmpp.Element('presence', { to: r + '/' + api.config.servers.hipchat.nickname }).c('x', { xmlns: 'http://jabber.org/protocol/muc' })
+          );
+        });
+
+        api.log("hipchat connected");
+
+        next();
+      });
     });
 
     server.xmpp.on('stanza', processStanxa);
   };
 
   server.stop = function(next){
-    // TODO: How to disconnect?
+    server.xmpp.connection.disconnect();
     next();
   };
 
@@ -79,21 +87,50 @@ var initialize = function(api, options, next){
   // HELPERS //
   /////////////
 
+  var getRooms = function(callback){
+    var rooms = [];
+    var req = new xmpp.Element('iq', {to: 'conf.hipchat.com', type: 'get'}).c('query',{xmlns: 'http://jabber.org/protocol/disco#items'});
+    sendWithCallback(req, function(roomsStanza){
+      var children = roomsStanza.getChild('query').getChildren('item');
+      children.forEach(function(c){
+        rooms.push(c.attrs.jid);
+      });
+
+      callback(null, rooms);
+    });
+  };
+
+  var sendWithCallback = function(stanza, callback){
+    var id = uuid.v4();
+    stanza = stanza.root(); // work with base element
+    stanza.attrs.id = id;
+    callbacks[id] = callback;
+    server.xmpp.send(stanza);
+  };
+
   var processStanxa = function(stanza){
     if (stanza.attrs.type == 'error') {
       api.log('[hipchat error] ' + stanza, 'error');
       return;
     }
-   
-    if (!stanza.is('message') || !stanza.attrs.type == 'groupchat') {
-      return;
+
+    // return any callbacks if requested
+    if(stanza.attrs.id && callbacks[stanza.attrs.id] !== undefined ){
+      callbacks[stanza.attrs.id](stanza);
+      delete callbacks[stanza.attrs.id];
     }
    
-    api.config.servers.hipchat.rooms.forEach(function(r){
+    // ignore messages from myaelf
+    server.rooms.forEach(function(r){
       if (stanza.attrs.from == r + '/' + api.config.servers.hipchat.nickname ) {
         return;
       }
     });
+
+    // don't respond to private messages
+    if (!stanza.is('message') || !stanza.attrs.type == 'groupchat') {
+      return;
+    }
    
     var body = stanza.getChild('body');
     if (!body) { return; }
