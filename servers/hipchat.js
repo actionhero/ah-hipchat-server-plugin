@@ -211,7 +211,7 @@ var initialize = function(api, options, next){
       data.connection.sendMessage(msg);
     }
 
-    connection.destroy();
+    data.connection.destroy();
   };
 
   ////////////
