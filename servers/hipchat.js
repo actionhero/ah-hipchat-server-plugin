@@ -50,7 +50,7 @@ var initialize = function(api, options, next){
 
         server.xmpp.send(
           // TODO: "away" works, but "chat" for presence does not?
-          new xmpp.Element('presence', { type: 'available' }).c('show').t('chat').c('status').t('Available')
+          new xmpp.Element('presence', { type: 'available' }).c('show').t('dnd')
         );
 
         server.rooms.forEach(function(r){
