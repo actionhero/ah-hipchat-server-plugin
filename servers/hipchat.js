@@ -200,14 +200,18 @@ var initialize = function(api, options, next){
     if(data.response.error){ data.response.error = String(data.response.error); }
 
     if(data.response.message){
-      msg = data.response.message;
+      var chunks = data.response.message.split(api.config.servers.hipchat.messageBreak);
+      chunks.forEach(function(c){
+        data.connection.sendMessage(c);
+      });
     }else{
       for(var key in data.response){
         msg += key + ': ' + data.response[key] + ' \r\n';
       }
+      data.connection.sendMessage(msg);
     }
 
-    data.connection.sendMessage(msg);
+    connection.destroy();
   };
 
   ////////////
