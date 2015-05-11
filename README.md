@@ -1,6 +1,6 @@
 # ah-hipchat-server-plugin
 
-This plugin adds a "hipchat" server, allowing you to communicate with actionhero from your hipchat chat client! 
+This plugin adds a "hipchat" server, allowing you to communicate with [actionhero](http://actionherojs.com) from your hipchat chat client! 
 
 This is inteded to show how simple it is to use actionhero as a hubot replacement.
 
