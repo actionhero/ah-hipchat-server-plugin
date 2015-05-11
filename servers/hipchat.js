@@ -146,7 +146,7 @@ var initialize = function(api, options, next){
         from: from,
       }, 
       remoteAddress  : 0,
-      remotePort     : 0 ,
+      remotePort     : 0,
     });
   };
 
@@ -157,11 +157,29 @@ var initialize = function(api, options, next){
     var words = connection.rawConnection.message.split(' ');
     connection.params.words = words;
 
+    // check for "/action"
     if(words[0].indexOf(delimiter) === 0){
       connection.params.action = words[0].substring(1);
       words.shift();
     }
+
+    // check for action keywords
+    if(!connection.params.action){
+      for(var name in api.actions.actions){
+        for(var version in api.actions.actions[name]){
+          var a = api.actions.actions[name][version];
+          if(a.matchers){
+            a.matchers.forEach(function(m){
+              if( connection.rawConnection.message.match(m) ){
+                connection.params.action = name;
+              }
+            });
+          }
+        }
+      }
+    }
     
+    // check for key/value mathers
     words.forEach(function(word){
       if(word.indexOf(breaker) >= 0){
         var parts = word.split(breaker);

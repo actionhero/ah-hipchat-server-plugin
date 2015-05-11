@@ -44,6 +44,54 @@ In order to tell which messages in rooms are meant to be actions, we need to set
 
 An example action, `ping`, is provided to test this out.
 
+## Regexp matchers
+
+Somtimes you want to match the plain text content of an incomming message to map to an action, rather than relying on `/` commands.  You can append a new property to your actions, `action.matchers = []` which contains a collection of regexps which will attempt to be matched to call this action. So, if you wanted to match "ship it" to show a random image, your action would look likt:
+
+```javascript
+exports.action = {
+  name:                   'shipit',
+  description:            'shipit',
+  blockedConnectionTypes: [],
+  outputExample:          {},
+  matchExtensionMimeType: false,
+  version:                1.0,
+  toDocument:             true,
+  middleware:             [],
+  matchers: [
+    'ship it',
+    'shipit',
+    'SHIP IT',
+    'SHIPIT'
+  ],
+
+  inputs: {},
+
+  run: function(api, data, next){
+    var images = [
+      "https://img.skitch.com/20111026-r2wsngtu4jftwxmsytdke6arwd.png",
+      "http://images.cheezburger.com/completestore/2011/11/2/aa83c0c4-2123-4bd3-8097-966c9461b30c.jpg",
+      "http://images.cheezburger.com/completestore/2011/11/2/46e81db3-bead-4e2e-a157-8edd0339192f.jpg",
+      "http://28.media.tumblr.com/tumblr_lybw63nzPp1r5bvcto1_500.jpg",
+      "http://i.imgur.com/DPVM1.png",
+      "http://gifs.gifbin.com/092010/1285616410_ship-launch-floods-street.gif",
+      "http://d2f8dzk2mhcqts.cloudfront.net/0772_PEW_Roundup/09_Squirrel.jpg",
+      "http://www.cybersalt.org/images/funnypictures/s/supersquirrel.jpg",
+      "http://www.zmescience.com/wp-content/uploads/2010/09/squirrel.jpg",
+      "http://img70.imageshack.us/img70/4853/cutesquirrels27rn9.jpg",
+      "http://img70.imageshack.us/img70/9615/cutesquirrels15ac7.jpg",
+      "http://1.bp.blogspot.com/_v0neUj-VDa4/TFBEbqFQcII/AAAAAAAAFBU/E8kPNmF1h1E/s640/squirrelbacca-thumb.jpg",
+      "https://dl.dropboxusercontent.com/u/602885/github/soldier-squirrel.jpg",
+      "https://dl.dropboxusercontent.com/u/602885/github/squirrelmobster.jpeg"
+    ];
+
+    data.response.message = images[Math.floor(Math.random()*images.length)];
+
+    next();
+  }
+};
+```
+
 ## Security
 
 You can be sure that any actions coming in via the hipchat server are from users truly logged into your company's hipchat account.  That said, remmeber that you can access actions via other methods (http, websocket, etc) in actionhero.  Be sure to add a layer of authentication if you expect to user your actionhero server for more than just hipchat.  
