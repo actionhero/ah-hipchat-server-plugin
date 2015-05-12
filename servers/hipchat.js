@@ -197,6 +197,8 @@ var initialize = function(api, options, next){
 
   var prepareResponse = function(data){
     var msg = '';
+    if( data.toRender === false ){ return }
+
     if(data.response.error){ data.response.error = String(data.response.error); }
 
     if(data.response.message){
