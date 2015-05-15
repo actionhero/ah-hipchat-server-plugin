@@ -74,6 +74,9 @@ var initialize = function(api, options, next){
   };
 
   server.sendMessage = function(connection, message, messageCount){
+    if(!message){ return; }
+    if(message === ''){ return; }
+    
     server.xmpp.send(
       new xmpp.Element('message', { to: connection.rawConnection.room, type: 'groupchat' }).c('body').t( String(message) )
     );
@@ -196,10 +199,28 @@ var initialize = function(api, options, next){
   };
 
   var prepareResponse = function(data){
-    var msg = '';
-    if( data.toRender === false ){ return }
+    if( data.toRender === false ){ return; }
 
     if(data.response.error){ data.response.error = String(data.response.error); }
+    if(String(data.response.error) === 'Error: unknown action or invalid apiVersion'){
+      delete data.response.error; // no need to respond to invalid API requests for hipchat
+    }
+
+    var recurseMessageParts = function(collection, prefix, lines){
+      if(!prefix){ prefix = ''; }
+      if(!lines){ lines = []; }
+
+      for(var key in collection){
+        if(typeof collection[key] === 'object'){
+          recurseMessageParts(collection[key], (prefix + ' ' + String(key) + ' => '), lines);
+        }else{
+          var msg = prefix + String(key) + ': ' + String(collection[key]);
+          lines.push(msg);
+        }
+      }
+
+      return lines;
+    };
 
     if(data.response.message){
       var chunks = data.response.message.split(api.config.servers.hipchat.messageBreak);
@@ -207,10 +228,8 @@ var initialize = function(api, options, next){
         data.connection.sendMessage(c);
       });
     }else{
-      for(var key in data.response){
-        msg += key + ': ' + data.response[key] + ' \r\n';
-      }
-      data.connection.sendMessage(msg);
+      var lines = recurseMessageParts(data.response);
+      data.connection.sendMessage(lines.join('\r\n'));  
     }
 
     data.connection.destroy();
