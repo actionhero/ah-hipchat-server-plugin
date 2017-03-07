@@ -1,5 +1,7 @@
 # ah-hipchat-server-plugin
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/actionhero/ah-hipchat-server-plugin.svg)](https://greenkeeper.io/)
+
 This plugin adds a "hipchat" server, allowing you to communicate with [actionhero](http://actionherojs.com) from your hipchat chat client! 
 
 This is inteded to show how simple it is to use actionhero as a hubot replacement.
